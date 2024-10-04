@@ -19,6 +19,7 @@ public class TileManager : MonoBehaviour
     public bool[,] portal;
     private Vector2[] portalPosition;
     public bool isSpawning;
+    public List<GameObject> tiles;
 
     void Start()
     {
@@ -32,16 +33,6 @@ public class TileManager : MonoBehaviour
         SetPortals();
         ShowPortals();
         
-        // startInstansiate(rows);
-//        Vector2 firstPos = new Vector2(gridManager.FindGridPos("0,0").transform.position.x,
-          //  gridManager.FindGridPos("0,0").transform.position.y);
-
-        //gridManager.deleteGrid("0,0");
-        // GameObject tile = gridManager.FindGridPos("2,0");
-        // var positionX = tile.transform.position.x;
-        // Debug.Log(positionX);
-        // RectTransform tileO =  gridManager.grid[2, 0];
-        // Debug.Log(tileO.anchoredPosition.x);
     }
 
 
@@ -113,7 +104,9 @@ public class TileManager : MonoBehaviour
 
                 // Instantiate the tile at the grid position
                 GameObject newTile = Instantiate(tile, new Vector3(portalPos.transform.position.x, portalPos.transform.position.y), Quaternion.identity);
-
+                
+                tiles.Add(newTile);
+                
                 // Set the tile's position and parent
                 newTile.GetComponent<Tile>().SetPosition(port);
                 newTile.transform.SetParent(tileParent.transform);
@@ -123,9 +116,10 @@ public class TileManager : MonoBehaviour
             }
 
             // Add a small delay between spawns
-            yield return new WaitForSeconds(0.1f);
-            isSpawning = false;
+           
         }
+        yield return new WaitForSeconds(0.1f);
+        isSpawning = false;
     }
 
     void startInstansiate(int row)

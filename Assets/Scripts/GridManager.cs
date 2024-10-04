@@ -51,19 +51,19 @@ public class GridManager : MonoBehaviour
     void CreateGrid(int shape)
     {
         CreateGrid();
-        deleteGrid("1,0");
-        deleteGrid("2,0");
-       
-        deleteGrid("4,0");
-        deleteGrid("5,0");
-        deleteGrid("6,0");
         deleteGrid("0,0");
         deleteGrid("0,1");
         deleteGrid("0,2");
-        deleteGrid("0,3");
-        deleteGrid("0,4");
-        deleteGrid("0,5");
-        deleteGrid("0,6");
+        deleteGrid("1,0");
+        deleteGrid("2,0");
+        deleteGrid("1,1");
+        deleteGrid("4,0");
+        deleteGrid("5,0");
+        deleteGrid("5,1");
+        deleteGrid("6,0");
+        deleteGrid("6,1");
+        deleteGrid("6,2");
+        
     }
 
     public bool isEmpty()
