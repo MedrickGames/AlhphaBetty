@@ -26,9 +26,11 @@ public class Tile : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     public TextMeshProUGUI letterHolder;
 
+    public GameObject thisTile;
     public char letter;
     private bool isPointerDown = false;
     private bool isSelected = false;
+    private bool isSentToWord = false;
 
     private void Start()
     {
@@ -145,47 +147,100 @@ public class Tile : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         this.gridPos = pos;
     }
-
-
-    // public void OnDrag(PointerEventData eventData)
-    // {
-    //     this.image.color = Color.cyan;
-    //     Debug.Log("yes");
-    // }
-
+    
     public void OnPointerDown(PointerEventData eventData)
     {
         this.image.color = Color.cyan;
+        if (!isSentToWord)
+        {
+            // GameObject.Find("GameManager").GetComponent<GameManger>().word += ""+letter;
+            // isSentToWord = true;
+        }
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
         this.image.color = Color.white;
+        // isSentToWord = false;
     }
 
-    public void SelectCheck()
-    {
-        // Check if the pointer is currently down
-        if (Input.GetMouseButton(0)) // For touch, you can use Input.touchCount > 0
-        {
-            isPointerDown = true;
+public void SelectCheck()
+{
+    GameManger gameManager = GameObject.Find("GameManager").GetComponent<GameManger>(); // Cache GameManager reference
+    Tile lastTile = gameManager.lastTile; // Cache lastTile from GameManager
 
-            // If pointer is down and over this UI element, mark it as selected
-            if (IsPointerOverUIElement() && !isSelected)
+    // Check if the pointer is currently down
+    if (Input.GetMouseButton(0)) // For touch, use Input.touchCount > 0
+    {
+        isPointerDown = true;
+
+        // Check if the pointer is over a UI element
+        if (IsPointerOverUIElement())
+        {
+            // Check if this tile is adjacent to the last selected tile or part of the previously selected tiles
+            bool isAdjacent = lastTile == null || 
+                              (Mathf.Abs(gridPos.x - lastTile.gridPos.x) <= 1 && Mathf.Abs(gridPos.y - lastTile.gridPos.y) <= 1);
+
+            // If the tile is previously selected and we are hovering over it again
+            if (gameManager.selectedTiles.Contains(this))
             {
+                // Deselect all tiles after this one in the selection history
+                int index = gameManager.selectedTiles.IndexOf(this);
+
+                for (int i = gameManager.selectedTiles.Count - 1; i > index; i--)
+                {
+                    Tile tileToDeselect = gameManager.selectedTiles[i];
+                    tileToDeselect.isSelected = false;
+                    tileToDeselect.image.color = Color.white;
+                    gameManager.selectedTiles.RemoveAt(i); // Remove deselected tiles from history
+                }
+
+                // Set this tile as the current last tile
+                gameManager.lastTile = this;
+            }
+            else if (isAdjacent && !isSelected) // Select if adjacent and not already selected
+            {
+                // Mark this tile as selected
                 isSelected = true;
+                isSentToWord = true;
                 image.color = Color.cyan;
+
+                // Add this tile's letter to the word
+                gameManager.word += letter;
+
+                // Add this tile to the selection history
+                gameManager.selectedTiles.Add(this);
+
+                // Set this tile as the current last tile
+                gameManager.lastTile = this;
             }
         }
-        else
+    }
+    else
+    {
+        // Reset all selections when pointer is released
+        isPointerDown = false;
+        isSelected = false;
+        isSentToWord = false;
+        image.color = Color.white;
+
+        // Clear the word and reset the selection history
+        gameManager.word = "";
+        gameManager.lastCheckedWord = "";
+        gameManager.lastTile = null;
+
+        // Reset colors of all previously selected tiles
+        foreach (Tile tile in gameManager.selectedTiles)
         {
-            // When pointer is released, reset all selections
-            isPointerDown = false;
-            isSelected = false;
-            image.color = Color.white;
+            tile.isSelected = false;
+            tile.image.color = Color.white;
         }
 
+        // Clear the selection history list
+        gameManager.selectedTiles.Clear();
     }
+}
+
 
     private bool IsPointerOverUIElement()
     {
