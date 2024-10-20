@@ -17,6 +17,7 @@ public class GameManger : MonoBehaviour
 
     void Start()
     {
+        Application.targetFrameRate = 144;
         // Example usage of CheckWord
         if (!string.IsNullOrEmpty(word) && word.Length >= 3)
         {
